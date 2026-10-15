@@ -1,7 +1,7 @@
 'use strict';
 // ---------- state ----------
 let W=2400,H=1600,MAP=null,GR=null,cfg=null,mission=null;
-let units=[],blds=[],foods=[],projs=[],fx=[],pings=[],pools=[],marks=[],teams=[],sel=[],groups={};
+let lairs=[],units=[],blds=[],foods=[],projs=[],fx=[],pings=[],pools=[],marks=[],teams=[],sel=[],groups={};
 let gameTime=0,nextId=1,NEU=1,stats=null,weather=null,foot=null,shakeT=0,combatT=0,lastAlert=-99,alertPos=null,visSrc=[];
 let running=false,paused=false,gameOver=false;
 const cam={x:0,y:0,z:1};
@@ -225,8 +225,8 @@ function kill(t,src){t.dead=true;const kt=src&&src.team!=null?src.team:-1;
     if(!d.temp&&teams[t.team].stats)teams[t.team].stats.lost++;
     if(!d.temp&&kt>=0&&teams[kt].stats)teams[kt].stats.killed++;
     if(src&&src.kind==='unit'&&!src.dead)giveXp(src,unitVal(t));
-    if(d.creep&&kt>=0&&kt!==NEU){const T=teams[kt];T.food+=d.bounty[0];T.honey+=d.bounty[1];floatTxt(t.x,t.y-20,`+${d.bounty[0]} food  +${d.bounty[1]} honeydew`);
-      if(kt===PLAYER){toast(`${d.name} slain: +${d.bounty[0]} food, +${d.bounty[1]} honeydew`);sfx('research');}}
+    if(d.creep&&kt>=0&&kt!==NEU){const T=teams[kt],bf=Math.round(d.bounty[0]*(t.bountyMult||1)),bh=Math.round(d.bounty[1]*(t.bountyMult||1));T.food+=bf;T.honey+=bh;floatTxt(t.x,t.y-20,`+${bf} food  +${bh} honeydew`);
+      if(kt===PLAYER){toast(`${d.name} slain: +${bf} food, +${bh} honeydew`);sfx('research');}}
     if(d.hero){teams[t.team].princessDied=true;if(t.team===PLAYER)announce("Your Princess has fallen. Revive her at the Queen's Nest.",'Our Princess has fallen',2000);}}
   else{fx.push({k:'rubble',x:t.x,y:t.y,r:t.r,t:0,life:40});sfx('crumble',t.x,t.y);shake(.35,t);
     if(teams[t.team].stats)teams[t.team].stats.bldLost++;if(kt>=0&&teams[kt].stats)teams[kt].stats.bldKilled++;
@@ -349,6 +349,14 @@ function stomp(f){sfx('stomp');shake(.7);fx.push({k:'crater',x:f.x,y:f.y,r:f.r,r
   for(const u of units)if(!u.dead&&!u.fly&&Math.hypot(u.x-f.x,u.y-f.y)<f.r+u.r*.5)damage(u,350,null);
   for(const b of blds)if(!b.dead&&Math.hypot(b.x-f.x,b.y-f.y)<f.r+b.r*.5)damage(b,300,null);}
 
+// ---------- wild creature lairs: cleared camps come back after a while, if nobody is camping on them ----------
+const LAIR_RESPAWN=270,LAIR_BOUNTY=.6;
+function updLairs(){let back=0;
+  for(const L of lairs){if(!L.unit.dead){continue;}if(L.deadAt==null){L.deadAt=gameTime;continue;}if(gameTime-L.deadAt<LAIR_RESPAWN)continue;
+    if(units.some(u=>u.team!==NEU&&!u.dead&&Math.hypot(u.x-L.x,u.y-L.y)<260)||blds.some(b=>!b.dead&&Math.hypot(b.x-L.x,b.y-L.y)<300+b.r))continue;
+    L.unit=spawnUnit(NEU,L.type,L.x,L.y);L.unit.bountyMult=LAIR_BOUNTY;L.deadAt=null;pings.push({x:L.x,y:L.y,t:0,life:4,c:'creep'});back++;}
+  if(back)toast('Wild creatures have returned to their lair');}
+
 // ---------- vision ----------
 function computeVis(){const src=[],rain=weather&&weather.rain?.75:1;
   for(const u of units)if(u.team===PLAYER&&!u.dead)src.push(u.x,u.y,stat(u,'sight'));
@@ -379,7 +387,7 @@ function update(dt){gameTime+=dt;combatT-=dt;shakeT=Math.max(0,shakeT-dt);
   for(const f of foods)if(f.regen&&f.amt<f.max)f.amt=Math.min(f.max,f.amt+f.regen*dt);
   foods=foods.filter(f=>!f.dead);
   for(const T of teams)if(T.ai&&T.alive)updAI(T,dt);
-  updWorld(dt);
+  updWorld(dt);updLairs();
   units=units.filter(u=>!u.dead);blds=blds.filter(b=>!b.dead);
   const before=sel.length;sel=sel.filter(e=>!e.dead);if(before&&!sel.length){buildMenu=false;tmode=null;}
   if(gameTime>=stats.next){stats.next+=5;sampleStats();}
@@ -401,7 +409,8 @@ function initGame(conf){cfg=conf;mission=conf.mission||null;
   for(const[x,y]of MAP.aphids)addFood(x,y,1200,'aphid');
   conf.players.forEach((p,i)=>{if(p.noBase)return;const s=MAP.starts[teams[i].slot];const n=makeBld(i,'nest',s.x,s.y,true);
     for(let k=0;k<5;k++){const a=Math.atan2(H/2-n.y,W/2-n.x)+(k-2)*.45;const u=spawnUnit(i,'worker',n.x+Math.cos(a)*(n.r+14),n.y+Math.sin(a)*(n.r+14));u.ang=a;u.state='gather';}});
-  if(conf.creeps!==false)for(const c of MAP.creeps){const p=blockedAt(c.x,c.y)?nearestFree(c.x,c.y):c;spawnUnit(NEU,c.type,p.x,p.y);}
+  lairs=[];if(conf.creeps!==false)for(const c of MAP.creeps){const p=blockedAt(c.x,c.y)?nearestFree(c.x,c.y):c;lairs.push({type:c.type,x:p.x,y:p.y,unit:spawnUnit(NEU,c.type,p.x,p.y),deadAt:null});}
+  if(!conf.creepRespawn)lairs=[];
   const wOn=conf.weather!==false;
   weather={rain:false,start:-99,stop:-99,next:wOn?(conf.weatherNext||240+Math.random()*120):1e9,footNext:wOn&&!conf.noFoot?330+Math.random()*120:1e9};
   stats={samples:[],next:0};

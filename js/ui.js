@@ -80,7 +80,7 @@ function scrMain(){running=false;musicStop();rainSound(false);
   card(`<h1>Formicide</h1><canvas id="hero" width="700" height="200"></canvas><div class="sub">Ant colony real-time strategy</div>
   <div class="menu"><button class="mb" id="mCamp">Campaign</button><button class="mb" id="mSkir">Skirmish</button><button class="mb sm" id="mHow">How to play</button><button class="mb sm" id="mSet">Settings</button></div>`);
   drawHero();$('mCamp').onclick=scrCampaign;$('mSkir').onclick=scrSkirmish;$('mHow').onclick=()=>scrHow(scrMain);$('mSet').onclick=()=>scrSettings(scrMain);}
-const SK=Object.assign({fac:'black',map:'clearing',opp:'1',diff:'normal',pers:'random',res:'normal',speed:'1',weather:true,creeps:true},store('skirmish')||{});
+const SK=Object.assign({fac:'black',map:'clearing',opp:'1',diff:'normal',pers:'random',res:'normal',speed:'1',weather:true,creeps:true,respawn:true},store('skirmish')||{});
 function scrSkirmish(){
   card(`<h2>Skirmish</h2>
   <div class="row"><label for="sFac">Your colony</label><select id="sFac">${opts(FACTIONS,SK.fac,f=>f.name)}</select></div><div class="note" id="sPerk"></div>
@@ -92,8 +92,9 @@ function scrSkirmish(){
   <div class="row"><label for="sSpd">Game speed</label><select id="sSpd">${opts({'0.75':'Slow','1':'Normal','1.25':'Fast','1.5':'Faster'},SK.speed,v=>v)}</select></div>
   <div class="row"><label for="sW">Rain and giant footsteps</label><input type="checkbox" id="sW"${SK.weather?' checked':''}></div>
   <div class="row"><label for="sC">Wild creatures</label><input type="checkbox" id="sC"${SK.creeps?' checked':''}></div>
+  <div class="row"><label for="sR">Creatures respawn</label><input type="checkbox" id="sR"${SK.respawn?' checked':''}></div><div class="note">Cleared creature camps return after 4.5 minutes if no ants or structures are nearby, with a smaller bounty.</div>
   <div class="menu"><button class="mb" id="sGo">Start</button><button class="mb sm" id="sBack">Back</button></div>`);
-  const upd=()=>{SK.fac=$('sFac').value;SK.map=$('sMap').value;SK.opp=$('sOpp').value;SK.diff=$('sDiff').value;SK.pers=$('sPers').value;SK.res=$('sRes').value;SK.speed=$('sSpd').value;SK.weather=$('sW').checked;SK.creeps=$('sC').checked;
+  const upd=()=>{SK.fac=$('sFac').value;SK.map=$('sMap').value;SK.opp=$('sOpp').value;SK.diff=$('sDiff').value;SK.pers=$('sPers').value;SK.res=$('sRes').value;SK.speed=$('sSpd').value;SK.weather=$('sW').checked;SK.creeps=$('sC').checked;SK.respawn=$('sR').checked;$('sR').disabled=!SK.creeps;
     $('sPerk').textContent=FACTIONS[SK.fac].perk+' Unique unit: '+UNIT[FACTIONS[SK.fac].unique].name+'.';
     $('sMapD').textContent=MAPS[SK.map].desc+(+SK.opp+1>MAPS[SK.map].max?' (Too small for 3 colonies: Four Corners will be used.)':'');store('skirmish',SK);};
   $('card').querySelectorAll('select,input').forEach(e=>e.onchange=upd);upd();
@@ -101,7 +102,7 @@ function scrSkirmish(){
 function startSkirmish(){const others=['black','red','gold'].filter(f=>f!==SK.fac),np=1+ +SK.opp;let map=SK.map;if(np>MAPS[map].max)map='corners';
   const res={low:{food:100,honey:0},normal:{food:150,honey:50},high:{food:500,honey:200}}[SK.res];
   const players=[{fac:SK.fac}];for(let i=0;i<np-1;i++)players.push({fac:others[i],ai:{diff:SK.diff,pers:SK.pers}});
-  beginGame({mode:'skirmish',map,seed:map==='random'?(Math.random()*1e9|0):{clearing:7,puddles:13,grass:21,corners:5}[map],players,res,speed:+SK.speed,weather:SK.weather,creeps:SK.creeps});
+  beginGame({mode:'skirmish',map,seed:map==='random'?(Math.random()*1e9|0):{clearing:7,puddles:13,grass:21,corners:5}[map],players,res,speed:+SK.speed,weather:SK.weather,creeps:SK.creeps,creepRespawn:SK.creeps&&SK.respawn});
   toast('Gather food, then build a Fungus Garden and a War Chamber');}
 function scrCampaign(){const un=store('camp')||0,cd=store('campDiff')||'normal';
   card(`<h2>Campaign</h2><div class="note">Lead the Black Carpenter Legion through six missions.</div>

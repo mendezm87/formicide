@@ -236,6 +236,7 @@ function drawMini(){const c=mctx,mw=mini.width,mh=mini.height,sx=mw/W,sy=mh/H;c.
     if(u.team===NEU){c.fillStyle='#b8b0a0';c.fillRect(u.x*sx-u1*.7,u.y*sy-u1*.7,u1*1.4,u1*1.4);continue;}
     const C=colOf(u.team);c.fillStyle=C.miniEdge;c.fillRect(u.x*sx-u1*.75,u.y*sy-u1*.75,u1*1.5,u1*1.5);c.fillStyle=C.mini;c.fillRect(u.x*sx-u1*.45,u.y*sy-u1*.45,u1*.9,u1*.9);}
   if(foot&&!foot.done){c.strokeStyle='#e0503e';c.lineWidth=2;c.beginPath();c.arc(foot.x*sx,foot.y*sy,foot.r*sx,0,Math.PI*2);c.stroke();}
+  for(const p of pings)if(p.c==='creep'){c.strokeStyle='#d8d0c0';c.lineWidth=2;c.beginPath();c.arc(p.x*sx,p.y*sy,3+(p.t%1)*10,0,Math.PI*2);c.stroke();}
   for(const p of pings)if(p.c==='alert'){c.strokeStyle='#ff8c28';c.lineWidth=2;c.beginPath();c.arc(p.x*sx,p.y*sy,4+p.t*10,0,Math.PI*2);c.stroke();}
   c.strokeStyle='#fff';c.lineWidth=Math.max(1,dpr);c.strokeRect(cam.x*sx,cam.y*sy,vw/cam.z*sx,vh/cam.z*sy);}
 

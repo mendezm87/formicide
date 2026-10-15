@@ -9,7 +9,7 @@ No build step and no dependencies: plain HTML, CSS and JavaScript on a canvas. W
 ## Modes
 
 - **Campaign:** six missions with objectives: a tutorial raid, holding the line against waves, a water crossing, a hero escort, a race to destroy three superweapons, and a final three-way war. Progress is saved in your browser.
-- **Skirmish:** pick your colony, map, one or two AI rivals (free-for-all), difficulty, AI style (Balanced, Rusher, Turtle, Expander), starting resources, game speed, weather and wild creatures.
+- **Skirmish:** pick your colony, map, one or two AI rivals (free-for-all), difficulty, AI style (Balanced, Rusher, Turtle, Expander), starting resources, game speed, weather, wild creatures and whether they respawn.
 
 ## Features
 
@@ -20,7 +20,7 @@ No build step and no dependencies: plain HTML, CSS and JavaScript on a canvas. W
 - **Veterancy:** ants earn Veteran, Elite and Heroic ranks from kills.
 - **Air and ground:** melee ants can't hit flyers; Spitters, Sky Lancers and Acid Towers can.
 - **Terrain:** puddles to path around, tall grass that hides units, high ground that boosts sight and range, and pheromone trails around your structures that speed up and heal your ants.
-- **Wild creatures:** Wolf Spiders, Stag Beetles and Praying Mantises guard rich spots and drop a bounty when killed.
+- **Wild creatures:** Wolf Spiders, Stag Beetles and Praying Mantises guard rich spots and drop a bounty when killed. In skirmish, cleared camps return after 4.5 minutes (with a smaller bounty) unless ants or structures are nearby.
 - **Hazards:** rain slows ants off their trails, and a giant footstep periodically crushes whatever is under its shadow.
 - **Superweapon:** the Swarm Spire charges for 4 minutes, then unleashes a swarm anywhere you can see. Every player can see every spire's countdown.
 - **RTS controls:** control groups, shift-queued orders, attack-move, patrol, hold position, formations that move at the slowest unit's pace, smart rally points, and a production queue you can cancel.
