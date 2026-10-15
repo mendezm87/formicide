@@ -33,14 +33,14 @@ No build step and no dependencies: plain HTML, CSS and JavaScript on a canvas. W
 | Action | Input |
 | --- | --- |
 | Select | Left-click, or drag a box. Double-click selects all of that type on screen. |
-| Command | Right-click to move, gather, attack or repair. Hold Shift to queue. |
+| Command | Right-click to move, gather, attack or repair (workers on a damaged structure). Hold Shift to queue. |
 | Camera | Right-drag or arrow keys to scroll, wheel to zoom, Space to jump to the latest alert. |
-| Units | A attack-move, S stop, H hold, P patrol, D and F abilities, B build menu then 1-7 |
+| Units | A attack-move, S stop, H hold, P patrol, D and F abilities, B build menu then 1-7, R repair (workers) |
 | Control groups | Ctrl or Alt + 1-9 to save, 1-9 to select (press twice to jump there), Shift + 1-9 to add |
 | Structures | Q W E R T press the panel buttons |
 | Menu and pause | Esc for the menu, F10 to pause |
 
-**Touch:** tap to select, double-tap for all of a kind, tap the ground to command, drag to scroll, pinch to zoom, use ⬚ Box to drag-select and + Group to save a group.
+**Touch:** tap to select, double-tap for all of a kind, tap the ground to command, drag to scroll, pinch to zoom, use ⬚ Box to drag-select, + Group to save a group, and the Repair button (then tap a structure) to fix damage.
 
 ## Project layout
 

@@ -35,7 +35,8 @@ function buildPanel(){const info=$('info'),cmds=$('cmds');cmds.innerHTML='';cons
   if(sel.length===1){const u=s0,d=UNIT[u.type],tag=d.hero?'Level '+u.lvl:u.rank?VET_NAME[u.rank]:'';
     info.innerHTML=`<div class="nm">${d.name}${tag?` <span class="tag">${tag}</span>`:''}</div><div class="bar"><i id="selhp"></i></div>${d.hero&&u.lvl<5?'<div class="bar xp"><i id="selxp"></i></div>':''}<div class="mut" id="selst"></div>`;}
   else info.innerHTML=`<div class="nm">${sel.length} selected</div><div class="mut">${Object.entries(cnt).map(([t,n])=>`${n} ${UNIT[t].name}${n>1?'s':''}`).join(', ')}</div>`;
-  if(cnt.worker)addBtn('Build','structures',()=>{buildMenu=true;tmode=null;},false,false,'B: open the build menu');
+  if(cnt.worker){addBtn('Build','structures',()=>{buildMenu=true;tmode=null;},false,false,'B: open the build menu');
+    addBtn('Repair','structures',()=>{tmode=tmode&&tmode.k==='repair'?null:{k:'repair'};},false,tmode&&tmode.k==='repair','R: pick a damaged structure for the selected workers to repair');}
   if(Object.keys(cnt).some(t=>!UNIT[t].noAtk))addBtn('Attack','move',()=>{tmode=tmode&&tmode.k==='amove'?null:{k:'amove'};},false,tmode&&tmode.k==='amove','A: move and fight anything on the way');
   addBtn('Stop','',stopSel,false,false,'S: stop and clear queued orders');
   addBtn('Hold','position',holdSel,false,false,'H: stand ground and only fight what is in range');
@@ -66,7 +67,7 @@ function updateUI(){const s0=sel[0],T=teams[PLAYER];
   $('food').textContent=Math.floor(T.food);$('honey').textContent=Math.floor(T.honey);const used=supUsed(PLAYER),cap=supCap(PLAYER);$('pop').textContent=used;$('cap').textContent=cap;$('pop').style.color=used>=cap&&cap>0?'var(--bad)':'';
   $('clock').textContent=fmtT(gameTime);
   const hint=$('hint'),t=coarse()?'Tap':'Click',tm=tmode;
-  const txt=tm?tm.k==='build'?`${t} a clear spot to place the ${BLD[tm.type].name}`:tm.k==='amove'?`${t} a spot or enemy to attack-move`:tm.k==='patrol'?`${t} where to patrol to`:tm.k==='abil'?`${t} a target for ${ABIL[tm.a].name}`:`${t} a spot you can see to unleash the swarm`:boxMode?'Drag to select a group':'';
+  const txt=tm?tm.k==='build'?`${t} a clear spot to place the ${BLD[tm.type].name}`:tm.k==='amove'?`${t} a spot or enemy to attack-move`:tm.k==='patrol'?`${t} where to patrol to`:tm.k==='repair'?`${t} a damaged structure to repair`:tm.k==='abil'?`${t} a target for ${ABIL[tm.a].name}`:`${t} a spot you can see to unleash the swarm`:boxMode?'Drag to select a group':'';
   if(hint.textContent!==txt){hint.style.display=txt?'block':'none';hint.textContent=txt;}$('bBox').classList.toggle('on',boxMode);
   const sh=blds.filter(b=>b.type==='spire'&&b.built&&!b.dead).slice(0,3).map(b=>{const S=teams[b.team];return`<span class="sp${b.spT<=0?' rdy':''}" style="border-color:${S.col.ui}">${b.team===PLAYER?'Your':S.name} swarm ${b.spT>0?fmtT(b.spT):'READY'}</span>`;}).join('');
   const se=$('spires');if(se._h!==sh){se._h=sh;se.innerHTML=sh;}
@@ -134,7 +135,7 @@ function scrHow(back){
   <h3>Mouse and keyboard</h3><ul>
   <li>Left-click or drag a box to select. Double-click an ant to select all of that kind on screen. Right-click to move, gather, attack or repair.</li>
   <li>Hold <b>Shift</b> while giving orders to queue them up. Right-drag or arrow keys to scroll, wheel to zoom, Space to jump to the latest alert.</li>
-  <li><b>A</b> attack-move, <b>S</b> stop, <b>H</b> hold position, <b>P</b> patrol, <b>D</b> and <b>F</b> abilities, <b>B</b> build menu then <b>1-7</b>.</li>
+  <li><b>A</b> attack-move, <b>S</b> stop, <b>H</b> hold position, <b>P</b> patrol, <b>D</b> and <b>F</b> abilities, <b>B</b> build menu then <b>1-7</b>, <b>R</b> repair (workers).</li>
   <li><b>Ctrl or Alt + 1-9</b> saves a control group, <b>1-9</b> selects it, press twice to jump to it. Shift + number adds to a group.</li>
   <li>With a structure selected, <b>Q W E R T</b> press its buttons. <b>Esc</b> opens the menu, <b>F10</b> pauses.</li></ul>
   <h3>Touch</h3><ul><li>Tap to select, double-tap to select all of a kind, tap the ground to command. Drag to scroll, pinch to zoom, ⬚ Box to drag-select, + Group to save a group.</li></ul>

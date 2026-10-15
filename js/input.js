@@ -6,7 +6,7 @@ function clampCam(){const vwW=vw/cam.z,vhW=vh/cam.z,t=50/cam.z,b=(panelH+10)/cam
 const toWorld=(sx,sy)=>({x:cam.x+sx/cam.z,y:cam.y+sy/cam.z});
 
 // ---------- selection & orders ----------
-// tmode is the pending click-target mode: {k:'build',type} | {k:'amove'} | {k:'patrol'} | {k:'abil',a} | {k:'swarm'}
+// tmode is the pending click-target mode: {k:'build',type} | {k:'amove'} | {k:'patrol'} | {k:'repair'} | {k:'abil',a} | {k:'swarm'}
 let tmode=null,buildMenu=false,boxMode=false,mouse=null,lastTap={t:0},lastGroup={n:0,t:0};
 const ptrs=new Map();let drag=null,pinch=null;
 const ownUnits=()=>sel.filter(e=>e.kind==='unit'&&e.team===PLAYER);
@@ -55,6 +55,10 @@ function applyTmode(w,q){const m=tmode;
   if(m.k==='build'){if(tryPlace(w,q)&&!q)tmode=null;return;}
   if(m.k==='amove')command(w.x,w.y,true,q);
   else if(m.k==='patrol'){const us=ownUnits();if(us.length){formationMove(us,w.x,w.y,'patrol',q);sfx('cmd');}}
+  else if(m.k==='repair'){const b=pick(w.x,w.y,14/cam.z),ws=ownUnits().filter(u=>u.type==='worker');
+    if(!b||b.kind!=='bld'||b.team!==PLAYER){toast('Pick one of your structures to repair');sfx('error');return;}
+    if(!b.built||b.hp>=b.maxhp){toast(b.built?`The ${BLD[b.type].name} is not damaged`:'Structures under construction repair themselves as they finish');sfx('error');tmode=null;return;}
+    for(const u of ws)issue(u,{t:'repair',e:b},q);ping(b.x,b.y,'move');sfx('cmd');}
   else if(m.k==='abil')castAt(m.a,w,q);
   else if(m.k==='swarm'){const b=sel[0];if(b&&b.type==='spire'){if(!pointVisible(w.x,w.y)){toast('Target an area you can currently see');sfx('error');return;}unleash(b,w.x,w.y);}}
   if(!q)tmode=null;}
@@ -135,6 +139,7 @@ addEventListener('keydown',e=>{const tg=e.target&&e.target.tagName;if(tg==='INPU
     if(k==='h'){holdSel();return;}
     if(k==='p'){tmode={k:'patrol'};return;}
     if(k==='b'&&us.some(u=>u.type==='worker')){buildMenu=!buildMenu;tmode=null;return;}
+    if(k==='r'&&us.some(u=>u.type==='worker')){tmode=tmode&&tmode.k==='repair'?null:{k:'repair'};return;}
     if(k==='d'||k==='f'){const ab=[...new Set(us.flatMap(u=>{const d=UNIT[u.type];return k==='d'?[d.abil]:[d.abil2];}).filter(Boolean))];if(ab[0])useAbility(ab[0]);return;}}
   else if(s0&&s0.kind==='bld'&&s0.team===PLAYER&&'qwert'.includes(k)&&k.length===1){const i='qwert'.indexOf(k);
     if(s0.type==='spire'){if(i===0)armSwarm(s0);return;}
